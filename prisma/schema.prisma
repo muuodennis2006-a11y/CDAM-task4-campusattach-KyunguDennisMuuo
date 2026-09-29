@@ -32,14 +32,14 @@ enum ApplicationStatus {
 }
 
 model User {
-  id             Int              @id @default(autoincrement())
-  fullName       String
-  email          String           @unique
-  passwordHash   String
-  role           UserRole
-  isActive       Boolean          @default(true)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id           Int      @id @default(autoincrement())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   studentProfile StudentProfile?
   organization   Organization?
@@ -48,8 +48,8 @@ model User {
 }
 
 model StudentProfile {
-  id          Int           @id @default(autoincrement())
-  userId      Int           @unique
+  id          Int     @id @default(autoincrement())
+  userId      Int     @unique
   university  String?
   course      String?
   yearOfStudy Int?
@@ -64,35 +64,35 @@ model StudentProfile {
 }
 
 model Organization {
-  id          Int           @id @default(autoincrement())
-  userId      Int           @unique
+  id          Int     @id @default(autoincrement())
+  userId      Int     @unique
   name        String
   description String?
   location    String?
   phone       String?
   website     String?
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   opportunities Opportunity[]
 
   @@map("organizations")
 }
 
 model Opportunity {
-  id               Int                @id @default(autoincrement())
-  organizationId   Int
-  title            String
-  type             OpportunityType
-  location         String
-  description      String
-  requirements     String?
-  deadline         DateTime
-  status           OpportunityStatus  @default(OPEN)
-  postedDate       DateTime           @default(now())
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  id             Int               @id @default(autoincrement())
+  organizationId Int
+  title          String
+  type           OpportunityType
+  location       String
+  description    String
+  requirements   String?
+  deadline       DateTime
+  status         OpportunityStatus @default(OPEN)
+  postedDate     DateTime          @default(now())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   applications Application[]
 
   @@index([organizationId])
