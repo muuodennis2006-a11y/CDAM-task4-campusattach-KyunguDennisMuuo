@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  STUDENT
+  ORGANIZATION
+  ADMIN
+}
+
+enum OpportunityType {
+  ATTACHMENT
+  INTERNSHIP
+}
+
+enum OpportunityStatus {
+  OPEN
+  CLOSED
+  PENDING
+  REJECTED
+}
+
+enum ApplicationStatus {
+  PENDING
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  fullName       String
+  email          String           @unique
+  passwordHash   String
+  role           UserRole
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  studentProfile StudentProfile?
+  organization   Organization?
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @unique
+  university  String?
+  course      String?
+  yearOfStudy Int?
+  phone       String?
+  skills      String?
+  bio         String?
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+
+  @@map("student_profiles")
+}
+
+model Organization {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @unique
+  name        String
+  description String?
+  location    String?
+  phone       String?
+  website     String?
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+
+  @@map("organizations")
+}
+
+model Opportunity {
+  id               Int                @id @default(autoincrement())
+  organizationId   Int
+  title            String
+  type             OpportunityType
+  location         String
+  description      String
+  requirements     String?
+  deadline         DateTime
+  status           OpportunityStatus  @default(OPEN)
+  postedDate       DateTime           @default(now())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  applications Application[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([type])
+  @@index([deadline])
+  @@map("opportunities")
+}
+
+model Application {
+  id               Int               @id @default(autoincrement())
+  studentProfileId Int
+  opportunityId    Int
+  status           ApplicationStatus @default(PENDING)
+  appliedDate      DateTime          @default(now())
+  coverLetter      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  studentProfile StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  opportunity    Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([studentProfileId, opportunityId])
+  @@index([studentProfileId])
+  @@index([opportunityId])
+  @@index([status])
+  @@map("applications")
+}
